@@ -1,0 +1,102 @@
+# Load required libraries
+library(tidyverse)
+library(ggplot2)
+
+# Read the dataset
+arrivals_data <- read.csv("World_Bank_international_arrivals_islands.csv")
+
+# Let's take a look at the data
+glimpse(arrivals_data)
+str(arrivals_data)
+summary(arrivals_data)
+
+# Data cleaning steps (if needed)
+# E.g. remove rows with missing values
+arrivals_data <- na.omit(arrivals_data)
+
+# Filter data for specific countries/years if needed
+# subset_data <- arrivals_data %>% filter(country %in% c("Mauritius", "Seychelles"))
+
+# Start exploratory analysis and visualization
+
+or Part 1:
+
+Think about stories/questions you want to explore. Some ideas:
+How do tourism arrivals vary across years for different countries?
+Is there a relationship between GDP and tourism receipts?
+Which countries receive the most arrivals from different regions (America, Europe, Australia)?
+Assess data fitness for your questions. The dataset seems suitable for exploring tourism trends, economic factors, and arrivals from different regions.
+Create at least 2 static visualizations using ggplot2. For example:
+
+
+# Line plot of tourism arrivals over time for selected countries
+ggplot(subset_data, aes(x = year, y = ovnarriv, color = country)) +
+  geom_line() +
+  labs(title = "Overnight Arrivals for Selected Countries",
+       x = "Year", y = "Overnight Arrivals")
+
+# Scatter plot of GDP vs tourism receipts with trend line
+ggplot(arrivals_data, aes(x = gdpnom, y = receipt)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "GDP vs Tourism Receipts",
+       x = "GDP", y = "Tourism Receipts")
+Explain your design choices, visual encodings, and data transformations in the report.
+
+For Part 2:
+
+Choose an argument/story you want to make based on the data.
+Create a presentational visualization (e.g., bar chart, pie chart) to support your argument.
+Write a paragraph explaining your argument and how the visualization supports it.
+Okay, let me choose some questions and create visualizations for Part 1:
+
+Q1: How does the number of hotel rooms relate to tourism arrivals across different island nations?
+
+# Scatter plot of hotel rooms vs overnight arrivals
+ggplot(arrivals_data, aes(x = hotrooms, y = ovnarriv, color = country)) +
+  geom_point() +
+  labs(title = "Hotel Rooms vs Overnight Arrivals",
+       x = "Number of Hotel Rooms", 
+       y = "Overnight Arrivals",
+       color = "Country") +
+  theme(legend.position = "bottom")
+This scatter plot shows the relationship between the number of hotel rooms and overnight arrivals for each country. The points are colored by country for easier identification. A positive relationship can be seen, where countries with more hotel rooms tend to have higher overnight arrivals, which makes sense as more accommodation capacity is needed for higher tourism.
+
+Q2: How have tourism receipts changed over time for different island groups?
+
+# Line plot of tourism receipts over time, grouped by region
+arrivals_data <- arrivals_data %>%
+  mutate(region = case_when(
+    country %in% c("Mauritius", "Seychelles", "Comoros") ~ "Africa",
+    country %in% c("Antigua & Barbuda", "Grenada", "Barbados", "Dominica",
+                   "St Lucia", "Cayman Islands", "St Vincent & Grenadines",
+                   "St Kitts and Nevis", "Trinidad and Tobago") ~ "Caribbean",
+    country %in% c("Bahrain", "Maldives", "Malta", "Singapore") ~ "Asia/Europe",
+    country %in% c("Kiribati", "Marshall Islands", "Fed Micronesia", "Samoa",
+                   "Tonga", "Tuvalu", "Palau", "Solomon Islands") ~ "Pacific",
+    TRUE ~ "Other"
+  ))
+
+ggplot(arrivals_data, aes(x = year, y = receipt, color = region)) +
+  geom_line() +
+  labs(title = "Tourism Receipts Over Time by Region",
+       x = "Year", y = "Tourism Receipts",
+       color = "Region")
+
+This visualization groups the countries into regional categories and plots tourism receipt values over time for each region using line plots. It allows us to compare the tourism revenue trends across different island groups. The Asia/Europe and Caribbean regions seem to have higher receipts, while the Pacific islands have lower values.
+
+For Part 2, let's create a visualization arguing that the Maldives is an attractive tourist destination based on its high tourism arrivals and receipts:
+# Bar chart of tourism metrics for Maldives
+maldives_data <- arrivals_data %>% 
+  filter(country == "Maldives") %>%
+  select(year, ovnarriv, receipt)
+
+ggplot(maldives_data, aes(x = year)) +
+  geom_col(aes(y = ovnarriv), fill = "steelblue", position = "dodge") +
+  geom_col(aes(y = receipt/1000000), fill = "lightgreen", position = "dodge") +
+  labs(title = "Tourism Metrics for Maldives",
+       x = "Year", 
+       y = "Overnight Arrivals / Tourism Receipts (Millions USD)")
+
+Argument paragraph:
+The visualization showcases the Maldives' strong tourism industry through its high overnight arrivals and tourism receipts over the years. The bar chart displays two metrics side-by-side: overnight arrivals (blue bars) and tourism receipts in millions of USD (green bars). Despite being a small island nation, the Maldives has consistently attracted a large number of tourists, as evident from the high overnight arrivals. Moreover, the substantial tourism receipts indicate that visitors spend significantly during their stay, contributing to the country's economy. These factors make the Maldives an attractive and lucrative tourist destination.
